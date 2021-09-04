@@ -5,30 +5,32 @@ import re
 from pandas import DataFrame
 
 # collecting data from a .csv file
-dataAlkuperainen = pd.read_csv("./FORTUM espoo, helsinki, vantaa, turku 6.5.2021.csv", 
-sep=";", dtype={"d": str}, encoding='ISO-8859-1', engine = 'python')
+
+dataAlkuperainen = pd.read_csv("LEI - CEO suora GSM.csv", 
+sep=";", dtype={"CEO_puhelin": str}, encoding='ISO-8859-1', engine = 'python')
 
 # collecting gsm numbers
-puh_raw = dataAlkuperainen['d']
+puh_raw = dataAlkuperainen['CEO_puhelin']
+company_num = dataAlkuperainen['yritys_puhelin']
 
-# storing numbers to object list by id and gsm
+# processing data to object list and preparing numbers without prefixes
 
 tmp = {"ID": "0",
         "GSM": "0"}
 tmplist = []
 for x, y in puh_raw.items():
-    y = y.replace('+358', '0')
-    print(y)
     y = str(y)
+    y = y.replace(" ", "")
+    dataAlkuperainen['CEO_puhelin'][x] = y
     tmp = {"ID": x, "GSM": y}
     tmplist.append(tmp)
-#print(tmplist)
 
-# Collecting data from a Member_last_activited.csv file
+# collecting data from Member_last_activited.csv file
+# dtype formats data as string
 
-dataMember_last_activated = pd.read_csv("Member_last_activited.csv", sep=";", dtype={"Phone Number": str})
+dataMember_last_activated = pd.read_csv("Member last activited.csv", sep=";", dtype={"Phone Number": str})
 
-# replacing prefixes from a phone number
+# collecting data from column 'Phone Number'
 
 puh2_raw = dataMember_last_activated['Phone Number']
 tmplist2 = []
@@ -48,27 +50,27 @@ n = 0
 count = 0
 finalList = []
 finalListMatchingID = []
-
-# looping through lists of numbers and comparing them
-# and matches are stored by id to a list (id = row number for dataframe)
 for x in tmplist:
     for z in tmplist2:
         if x.get("GSM") == z.get("GSM"):
             count += 1
             n += 1
-            finalListMatchingID.append(x.get("ID"))  
+            print(z.get("GSM"))
+            finalListMatchingID.append(x.get("ID")) 
+            #print(finalListMatchingID)   
         else:  
-            i += 1
-   
-# deleting rows from a dataframe by id
+            i += 1  
+# adding list of ids to rows to be deleted from a data frame
 i = 0
 index = 0
 rowss = dataAlkuperainen.index[[finalListMatchingID]]
 dataAlkuperainen.drop(rowss, inplace=True)
 
-# saving data to a .csv file
-df = DataFrame(dataAlkuperainen, columns=['a', 'b', 'c', 'd', 'e', 'f', 'g', 
-'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r'])
+# saving data to .csv file
+df = DataFrame(dataAlkuperainen, columns=['Field1', 'Field2', 'Field3', 
+'Field4', 'Field5', 'Field6', 'Field7', 
+'Field1', 'yritysnimi', 'status', 
+'yritys_puhelin', 'CEO_nimi', 'CEO_puhelin', 'talous_nimi', 'talous_puhelin'])
 df.astype(str)
 export_csv = df.to_csv (r'./test.csv', index = None, header=True, sep=";", encoding="ISO-8859-1")
 print(df)

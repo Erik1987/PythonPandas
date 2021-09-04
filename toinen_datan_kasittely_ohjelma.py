@@ -4,14 +4,16 @@ import csv
 import re
 from pandas import DataFrame
 
-# kerätään data tiedostosta .csv
+# collecting data from a .csv file
+
 dataAlkuperainen = pd.read_csv("Oskarin_potet_2021.csv", 
 sep=";", dtype={"Kontaktin GSM numero": str}, encoding='ISO-8859-1', engine = 'python')
 
-# kerätään gsm numerot
+# collecting gsm numebers
+
 puh_raw = dataAlkuperainen['Kontaktin GSM numero']
 
-# käsitellään dataa
+# adding gsm numbers to a object list by id and number
 
 tmp = {"ID": "0",
         "GSM": "0"}
@@ -21,10 +23,15 @@ for x, y in puh_raw.items():
     tmp = {"ID": x, "GSM": y}
     tmplist.append(tmp)
 
-# Kerätään dataa Member_last_activited.csv
+# collecting data from a Member_last_activited.csv file
+# dtype formats data as strings
+
 dataMember_last_activated = pd.read_csv("Member_last_activited.csv", sep=";", dtype={"Phone Number": str})
 
+# collecting data from a column 'Phone Number'
 puh2_raw = dataMember_last_activated['Phone Number']
+
+# removing phone number prefixes
 tmplist2 = []
 tmp2 = {"ID": "0",
         "GSM": "0"}
@@ -42,6 +49,8 @@ n = 0
 count = 0
 finalList = []
 finalListMatchingID = []
+
+# comparing phone numbers and if matches then listing ids
 for x in tmplist:
     for z in tmplist2:
         if x.get("GSM") == z.get("GSM"):
@@ -51,13 +60,14 @@ for x in tmplist:
         else:  
             i += 1
    
-# Käydään läpi alkuperäinen .csv tiedosto ja verrataan ID osumia, jotka poistaa rivit
+# deleting rows from a dataframe by ids
 i = 0
 index = 0
 rowss = dataAlkuperainen.index[[finalListMatchingID]]
 dataAlkuperainen.drop(rowss, inplace=True)
 
-# Tallennetaan uusi data .csv tiedostoon
+# making new dataframe with columns and saving it as .csv file
+
 df = DataFrame(dataAlkuperainen, columns=['Y-Tunnus', 'Toimipaikan nimi', 'Kunta', 
 'Etunimi', 'Sukunimi', 'Vastuualueen koodi', 'Titteli', 
 'Sukupuoli', str('Kontaktin GSM numero'), 'Kontaktin sahkopostiosoite', 
